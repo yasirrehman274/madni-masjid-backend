@@ -1,28 +1,32 @@
 import mongoose from "mongoose";
 import { env } from "./env";
 
-let connected = false;
+let connectionPromise: Promise<typeof mongoose> | null = null;
 
 export async function connectDatabase(): Promise<void> {
-  if (connected) return;
+  if (mongoose.connection.readyState === 1) return;
+
+  if (!connectionPromise) {
+    connectionPromise = mongoose.connect(env.MONGODB_URI);
+  }
 
   try {
-    await mongoose.connect(env.MONGODB_URI);
-    connected = true;
-    console.log("MongoDB connected successfully");
+    await connectionPromise;
   } catch (error) {
+    connectionPromise = null;
     console.error("MongoDB connection failed:", error);
-    process.exit(1);
+    throw error;
   }
 }
 
 export async function disconnectDatabase(): Promise<void> {
-  if (!connected) return;
-  await mongoose.disconnect();
-  connected = false;
-  console.log("MongoDB disconnected");
+  connectionPromise = null;
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.disconnect();
+    console.log("MongoDB disconnected");
+  }
 }
 
 export function isConnected(): boolean {
-  return connected && mongoose.connection.readyState === 1;
+  return mongoose.connection.readyState === 1;
 }

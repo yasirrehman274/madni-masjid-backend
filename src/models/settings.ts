@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface ISettings extends Document {
   mosqueName: string;
@@ -21,4 +21,5 @@ const schema = new Schema<ISettings>(
   { timestamps: true }
 );
 
-export const Settings = mongoose.model<ISettings>("Settings", schema);
+export const Settings: Model<ISettings> =
+  (mongoose.models.Settings as Model<ISettings>) || mongoose.model<ISettings>("Settings", schema);

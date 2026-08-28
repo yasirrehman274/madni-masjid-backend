@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "functions": {},
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api" }
+  ]
+}

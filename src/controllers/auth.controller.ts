@@ -2,20 +2,42 @@ import { Response } from "express";
 import { AuthenticatedRequest } from "../types";
 import { apiResponse } from "../utils/helpers";
 import * as authService from "../services/auth.service";
+import {
+  checkLoginRateLimit,
+  recordLoginFailure,
+  resetLoginRateLimit,
+  rateLimitKey,
+} from "../services/rateLimit.service";
 
 export async function login(req: AuthenticatedRequest, res: Response) {
-  try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      res.status(400).json(apiResponse(false, "Email and password are required"));
-      return;
-    }
+  const { email, password } = req.body;
 
+  if (!email || !password) {
+    res.status(400).json(apiResponse(false, "Email and password are required"));
+    return;
+  }
+
+  const key = rateLimitKey(email, req.ip ?? "");
+  const limit = await checkLoginRateLimit(key);
+
+  if (!limit.allowed) {
+    res.set("Retry-After", String(limit.retryAfterSeconds));
+    res.status(429).json(
+      apiResponse(false, `Too many failed login attempts. Try again in ${limit.retryAfterSeconds}s.`)
+    );
+    return;
+  }
+
+  try {
     const result = await authService.login(email, password);
+    await resetLoginRateLimit(key);
     res.json(apiResponse(true, undefined, result));
   } catch (err) {
     const message = err instanceof Error ? err.message : "Server error";
     const status = message.includes("Invalid") || message.includes("inactive") ? 401 : 500;
+    if (status === 401) {
+      await recordLoginFailure(key);
+    }
     res.status(status).json(apiResponse(false, message));
   }
 }

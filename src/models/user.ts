@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IUser extends Document {
   name: string;
@@ -29,4 +29,5 @@ const schema = new Schema<IUser>(
 
 schema.index({ email: 1 }, { unique: true });
 
-export const User = mongoose.model<IUser>("User", schema);
+export const User: Model<IUser> =
+  (mongoose.models.User as Model<IUser>) || mongoose.model<IUser>("User", schema);

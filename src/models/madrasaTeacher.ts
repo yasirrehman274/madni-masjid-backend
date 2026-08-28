@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IMadrasaTeacher extends Document {
   name: string;
@@ -27,8 +27,6 @@ const schema = new Schema<IMadrasaTeacher>(
   { timestamps: true }
 );
 
-export const MadrasaTeacher = mongoose.model<IMadrasaTeacher>(
-  "MadrasaTeacher",
-  schema,
-  "madrasa_teachers"
-);
+export const MadrasaTeacher: Model<IMadrasaTeacher> =
+  (mongoose.models.MadrasaTeacher as Model<IMadrasaTeacher>) ||
+  mongoose.model<IMadrasaTeacher>("MadrasaTeacher", schema, "madrasa_teachers");

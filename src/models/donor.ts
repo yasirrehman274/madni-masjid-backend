@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IDonor extends Document {
   name: string;
@@ -26,4 +26,5 @@ const schema = new Schema<IDonor>(
 schema.index({ name: "text" });
 schema.index({ phone: 1 });
 
-export const Donor = mongoose.model<IDonor>("Donor", schema);
+export const Donor: Model<IDonor> =
+  (mongoose.models.Donor as Model<IDonor>) || mongoose.model<IDonor>("Donor", schema);

@@ -2,6 +2,10 @@
 
 REST API for the Madni Masjid Management System built with Node.js, Express, MongoDB, and TypeScript.
 
+Deployable in two modes:
+- **Standalone server** (local / VPS): `npm run dev`, `npm run build`, `npm run start`
+- **Vercel serverless function**: `api/index.ts` exports the Express app (see [Vercel Deploy](#vercel-deploy))
+
 ## Setup
 
 ### Prerequisites
@@ -43,13 +47,36 @@ npm run seed       # Seed admin user + dev data
 npm run seed:admin # Seed admin user only
 ```
 
+## Vercel Deploy
+
+Set the following environment variables in the Vercel project (Settings → Environment Variables):
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `MONGODB_URI` | Yes | MongoDB connection string (Atlas recommended) |
+| `JWT_SECRET` | Yes | Secret for JWT signing (min 8 chars) |
+| `JWT_EXPIRES_IN` | No | Token expiry (default `7d`) |
+| `FRONTEND_URL` | Yes | Frontend origin for CORS |
+| `NODE_ENV` | No | Set to `production` |
+
+Deploy the `backend/` directory as its own Vercel project. `vercel.json` rewrites all requests to the serverless function; `api/index.ts` exports the Express app (no `app.listen()` on Vercel). The Mongoose connection is cached across warm invocations via a module-level promise.
+
+```bash
+vercel           # interactive deploy
+vercel --prod    # production deploy / alias
+```
+
+## Rate Limiting
+
+`POST /api/auth/login` is protected with a **MongoDB-backed** rate limiter (5 failures per email/IP per 15 minutes). It is serverless-safe (shared state via MongoDB, not in-memory counters) and returns `429 Too Many Requests` with a `Retry-After` header when exceeded. Counters reset automatically after the window and on successful login.
+
 ## API Endpoints
 
 ### Health
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| GET | `/api/health` | No | API status + DB connectivity |
+| GET | `/api/health` | No | API liveness check (`{"success":true,"status":"ok"}`) |
 
 ### Authentication
 

@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IFund extends Document {
   name: string;
@@ -27,4 +27,5 @@ const schema = new Schema<IFund>(
 
 schema.index({ type: 1 });
 
-export const Fund = mongoose.model<IFund>("Fund", schema);
+export const Fund: Model<IFund> =
+  (mongoose.models.Fund as Model<IFund>) || mongoose.model<IFund>("Fund", schema);

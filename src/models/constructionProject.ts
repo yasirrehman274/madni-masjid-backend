@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IConstructionProject extends Document {
   name: string;
@@ -27,8 +27,6 @@ const schema = new Schema<IConstructionProject>(
   { timestamps: true }
 );
 
-export const ConstructionProject = mongoose.model<IConstructionProject>(
-  "ConstructionProject",
-  schema,
-  "construction_projects"
-);
+export const ConstructionProject: Model<IConstructionProject> =
+  (mongoose.models.ConstructionProject as Model<IConstructionProject>) ||
+  mongoose.model<IConstructionProject>("ConstructionProject", schema, "construction_projects");

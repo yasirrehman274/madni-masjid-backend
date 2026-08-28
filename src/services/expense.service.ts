@@ -26,7 +26,7 @@ async function calculateFundBalance(fundId: string): Promise<number> {
   return donations - expenses - constructionExpenses;
 }
 
-async function validateFundBalance(fundId: string, amount: number, excludeExpenseId?: string) {
+async function validateFundBalance(fundId: string, amount: number) {
   const balance = await calculateFundBalance(fundId);
   if (amount > balance) {
     throw new Error("Insufficient balance in this fund.");
@@ -90,7 +90,6 @@ export async function updateExpense(id: string, data: Partial<IExpense>) {
   if (!existing) throw new Error("Expense not found");
 
   const newAmount = data.amount ?? existing.amount;
-  const newFundId = (data.fundId ?? existing.fundId).toString();
 
   if (data.amount || data.fundId) {
     const currentBalance = await calculateFundBalance(existing.fundId.toString());

@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IReceipt extends Document {
   receiptNumber: string;
@@ -28,4 +28,5 @@ const schema = new Schema<IReceipt>(
 schema.index({ receiptNumber: 1 }, { unique: true });
 schema.index({ donationId: 1 });
 
-export const Receipt = mongoose.model<IReceipt>("Receipt", schema);
+export const Receipt: Model<IReceipt> =
+  (mongoose.models.Receipt as Model<IReceipt>) || mongoose.model<IReceipt>("Receipt", schema);

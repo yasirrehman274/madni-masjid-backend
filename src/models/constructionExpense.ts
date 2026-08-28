@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IConstructionExpense extends Document {
   projectId: mongoose.Types.ObjectId;
@@ -38,8 +38,6 @@ const schema = new Schema<IConstructionExpense>(
 schema.index({ projectId: 1 });
 schema.index({ fundId: 1 });
 
-export const ConstructionExpense = mongoose.model<IConstructionExpense>(
-  "ConstructionExpense",
-  schema,
-  "construction_expenses"
-);
+export const ConstructionExpense: Model<IConstructionExpense> =
+  (mongoose.models.ConstructionExpense as Model<IConstructionExpense>) ||
+  mongoose.model<IConstructionExpense>("ConstructionExpense", schema, "construction_expenses");

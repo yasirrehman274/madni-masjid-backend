@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { AuthenticatedRequest } from "../types";
 import { parsePagination, apiResponse, paginate } from "../utils/helpers";
 import * as fundService from "../services/fund.service";
 

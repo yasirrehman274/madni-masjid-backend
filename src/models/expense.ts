@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IExpense extends Document {
   fundId: mongoose.Types.ObjectId;
@@ -37,4 +37,5 @@ schema.index({ fundId: 1 });
 schema.index({ date: 1 });
 schema.index({ category: 1 });
 
-export const Expense = mongoose.model<IExpense>("Expense", schema);
+export const Expense: Model<IExpense> =
+  (mongoose.models.Expense as Model<IExpense>) || mongoose.model<IExpense>("Expense", schema);
